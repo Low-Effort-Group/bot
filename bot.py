@@ -141,7 +141,7 @@ class MyModal(disnake.ui.Modal):
             ),
             disnake.ui.TextInput(
                 label="Preferenser för platser",
-                placeholder="Ex: inga",
+                placeholder="Ex: Bob, Rut, Knut, Kalle",
                 required=False,
                 custom_id="preferences",
                 style=disnake.TextInputStyle.paragraph,
