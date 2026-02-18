@@ -7,9 +7,12 @@ import datetime
 import os
 import random
 import subprocess
+import aiosqlite
 from admins import check_perm
 import whois as wi
 from gtts import gTTS
+
+DB_PATH = "anmalan.db"
 
 load_dotenv()
 token = os.getenv("DISCORD_TOKEN")
@@ -32,6 +35,18 @@ async def on_ready():
     channel = bot.get_channel(1419407048294138027)
     if channel:
         await channel.send("started")
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute("""
+            CREATE TABLE IF NOT EXISTS anmalan (
+                user_id    INTEGER PRIMARY KEY,
+                username   TEXT NOT NULL,
+                namn       TEXT NOT NULL,
+                klass      TEXT NOT NULL,
+                preferenser TEXT
+            )
+        """)
+        await db.commit()
+    print("Database ready.")
 
 
 @bot.event
@@ -152,18 +167,52 @@ class MyModal(disnake.ui.Modal):
 
     # The callback received when the user input is completed.
     async def callback(self, inter: disnake.ModalInteraction):
-        embed = disnake.Embed(title="FriskoLAN Anmälan", description="Anmälan registrerad!")
-        for key, value in inter.text_values.items():
-            embed.add_field(
-                name=key.capitalize(),
-                value=value[:1024],
-                inline=False,
+        namn       = inter.text_values["name"]
+        klass      = inter.text_values["class"]
+        preferenser = inter.text_values.get("preferences") or None
+
+        async with aiosqlite.connect(DB_PATH) as db:
+            # Race-condition safety: check again inside the callback
+            async with db.execute(
+                "SELECT 1 FROM anmalan WHERE user_id = ?", (inter.author.id,)
+            ) as cursor:
+                if await cursor.fetchone():
+                    await inter.response.send_message(
+                        "Du är redan anmäld!", ephemeral=True
+                    )
+                    return
+
+            await db.execute(
+                "INSERT INTO anmalan (user_id, username, namn, klass, preferenser) "
+                "VALUES (?, ?, ?, ?, ?)",
+                (inter.author.id, str(inter.author), namn, klass, preferenser),
             )
+            await db.commit()
+
+        embed = disnake.Embed(
+            title="FriskoLAN Anmälan",
+            description="Anmälan registrerad! ✅",
+            color=disnake.Colour.green(),
+        )
+        embed.add_field(name="Namn", value=namn, inline=False)
+        embed.add_field(name="Klass", value=klass, inline=False)
+        if preferenser:
+            embed.add_field(name="Preferenser", value=preferenser, inline=False)
         await inter.response.send_message(embed=embed, ephemeral=True)
 
 
 @bot.slash_command(name="anmälan", description="Anmäl dig till LAN!")
 async def anmalan(inter: disnake.AppCmdInter):
+    async with aiosqlite.connect(DB_PATH) as db:
+        async with db.execute(
+            "SELECT 1 FROM anmalan WHERE user_id = ?", (inter.author.id,)
+        ) as cursor:
+            if await cursor.fetchone():
+                await inter.response.send_message(
+                    "Du är redan anmäld! Kontakta en admin om du vill ändra din anmälan.",
+                    ephemeral=True,
+                )
+                return
     await inter.response.send_modal(modal=MyModal())
 
 @bot.slash_command(description="get the latency of the bot")
