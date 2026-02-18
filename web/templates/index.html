@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FriskoLAN – Anmälningar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0d0f1a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 3rem 1rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    header h1 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #a78bfa, #60a5fa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+    }
+
+    header p {
+      margin-top: 0.4rem;
+      color: #64748b;
+      font-size: 0.95rem;
+    }
+
+    .badge {
+      display: inline-block;
+      margin-top: 0.8rem;
+      background: rgba(167,139,250,0.15);
+      border: 1px solid rgba(167,139,250,0.3);
+      color: #a78bfa;
+      border-radius: 999px;
+      padding: 0.25rem 0.9rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 860px;
+      background: #141624;
+      border: 1px solid #1e2235;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead tr {
+      background: linear-gradient(90deg, #1a1d30, #1e2235);
+    }
+
+    thead th {
+      padding: 1rem 1.4rem;
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #64748b;
+    }
+
+    tbody tr {
+      border-top: 1px solid #1e2235;
+      transition: background 0.15s ease;
+    }
+
+    tbody tr:hover {
+      background: rgba(167,139,250,0.05);
+    }
+
+    tbody td {
+      padding: 0.9rem 1.4rem;
+      font-size: 0.93rem;
+      vertical-align: top;
+    }
+
+    td.namn { font-weight: 600; color: #e2e8f0; }
+    td.klass {
+      font-family: monospace;
+      color: #60a5fa;
+      font-size: 0.88rem;
+    }
+    td.pref { color: #94a3b8; font-size: 0.88rem; }
+
+    .empty {
+      text-align: center;
+      padding: 3rem;
+      color: #334155;
+      font-size: 0.95rem;
+    }
+
+    .row-num {
+      color: #334155;
+      font-size: 0.8rem;
+      width: 2rem;
+      text-align: right;
+      padding-right: 0.5rem;
+    }
+
+    footer {
+      margin-top: 2rem;
+      color: #1e2235;
+      font-size: 0.78rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>FriskoLAN</h1>
+    <p>Anmälningslista</p>
+    <span class="badge">{{ rows|length }} anmälda</span>
+  </header>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Namn</th>
+          <th>Klass</th>
+          <th>Preferenser</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if rows %}
+          {% for row in rows %}
+          <tr>
+            <td class="row-num">{{ loop.index }}</td>
+            <td class="namn">{{ row.namn }}</td>
+            <td class="klass">{{ row.klass }}</td>
+            <td class="pref">{{ row.preferenser or '—' }}</td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="4" class="empty">Inga anmälningar ännu.</td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  <footer>Uppdateras vid varje sidladdning</footer>
+</body>
+</html>
