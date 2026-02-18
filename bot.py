@@ -131,16 +131,22 @@ class MyModal(disnake.ui.Modal):
         # The details of the modal, and its components
         components = [
             disnake.ui.TextInput(
-                label="Name",
-                placeholder="Foo Tag",
+                label="Fullt namn",
+                placeholder="Ex: Hubert Rutsson",
                 custom_id="name",
                 style=disnake.TextInputStyle.short,
                 max_length=50,
             ),
             disnake.ui.TextInput(
-                label="Description",
-                placeholder="Lorem ipsum dolor sit amet.",
-                custom_id="description",
+                label="Klass",
+                placeholder="Ex: 24NV",
+                custom_id="class",
+                style=disnake.TextInputStyle.short,
+            ),
+            disnake.ui.TextInput(
+                label="Preferenser för platser",
+                placeholder="Ex: inga",
+                custom_id="preferences",
                 style=disnake.TextInputStyle.paragraph,
             ),
         ]
