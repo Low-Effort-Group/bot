@@ -134,14 +134,14 @@ class MyModal(disnake.ui.Modal):
                 label="Name",
                 placeholder="Foo Tag",
                 custom_id="name",
-                style=TextInputStyle.short,
+                style=disnake.TextInputStyle.short,
                 max_length=50,
             ),
             disnake.ui.TextInput(
                 label="Description",
                 placeholder="Lorem ipsum dolor sit amet.",
                 custom_id="description",
-                style=TextInputStyle.paragraph,
+                style=disnake.TextInputStyle.paragraph,
             ),
         ]
         super().__init__(title="Create Tag", components=components)
