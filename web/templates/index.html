@@ -120,6 +120,12 @@
             font-size: 0.88rem;
         }
 
+        td.discord {
+            color: #64748b;
+            font-size: 0.82rem;
+            font-family: monospace;
+        }
+
         .empty {
             text-align: center;
             padding: 3rem;
@@ -156,6 +162,7 @@
                 <tr>
                     <th>#</th>
                     <th>Namn</th>
+                    <th>Discord</th>
                     <th>Klass</th>
                     <th>Önskemål</th>
                 </tr>
@@ -166,13 +173,14 @@
                 <tr>
                     <td class="row-num">{{ loop.index }}</td>
                     <td class="namn">{{ row.namn }}</td>
+                    <td class="discord">{{ row.username }}</td>
                     <td class="klass">{{ row.klass }}</td>
                     <td class="pref">{{ row.preferenser or '—' }}</td>
                 </tr>
                 {% endfor %}
                 {% else %}
                 <tr>
-                    <td colspan="4" class="empty">Inga anmälningar ännu.</td>
+                    <td colspan="5" class="empty">Inga anmälningar ännu.</td>
                 </tr>
                 {% endif %}
             </tbody>

@@ -12,7 +12,7 @@ def index():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     rows = conn.execute(
-        "SELECT namn, klass, preferenser FROM anmalan ORDER BY namn COLLATE NOCASE"
+        "SELECT namn, username, klass, preferenser FROM anmalan ORDER BY namn COLLATE NOCASE"
     ).fetchall()
     conn.close()
     return render_template("index.html", rows=rows)

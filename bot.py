@@ -215,6 +215,25 @@ async def anmalan(inter: disnake.AppCmdInter):
                 return
     await inter.response.send_modal(modal=MyModal())
 
+
+@bot.slash_command(name="avregistrera", description="Ta bort din LAN-anmälan.")
+async def avregistrera(inter: disnake.AppCmdInter):
+    async with aiosqlite.connect(DB_PATH) as db:
+        async with db.execute(
+            "SELECT 1 FROM anmalan WHERE user_id = ?", (inter.author.id,)
+        ) as cursor:
+            if not await cursor.fetchone():
+                await inter.response.send_message(
+                    "Du är inte anmäld.", ephemeral=True
+                )
+                return
+        await db.execute("DELETE FROM anmalan WHERE user_id = ?", (inter.author.id,))
+        await db.commit()
+    await inter.response.send_message(
+        "Din anmälan har tagits bort. Du kan anmäla dig igen med `/anmälan`.",
+        ephemeral=True,
+    )
+
 @bot.slash_command(description="get the latency of the bot")
 async def ping(ctx):
     latency = bot.latency * 1000
