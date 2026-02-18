@@ -216,8 +216,8 @@ async def anmalan(inter: disnake.AppCmdInter):
     await inter.response.send_modal(modal=MyModal())
 
 
-@bot.slash_command(name="avregistrera", description="Ta bort din LAN-anmälan.")
-async def avregistrera(inter: disnake.AppCmdInter):
+@bot.slash_command(name="avanmäl", description="Ta bort din LAN-anmälan.")
+async def avanmal(inter: disnake.AppCmdInter):
     async with aiosqlite.connect(DB_PATH) as db:
         async with db.execute(
             "SELECT 1 FROM anmalan WHERE user_id = ?", (inter.author.id,)
