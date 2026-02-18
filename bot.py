@@ -151,7 +151,7 @@ class MyModal(disnake.ui.Modal):
                 label="Klass",
                 placeholder="Ex: 24NV",
                 custom_id="class",
-                max_length=5,
+                max_length=4,
                 style=disnake.TextInputStyle.short,
             ),
             disnake.ui.TextInput(
