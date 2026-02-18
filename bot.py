@@ -152,7 +152,7 @@ class MyModal(disnake.ui.Modal):
 
     # The callback received when the user input is completed.
     async def callback(self, inter: disnake.ModalInteraction):
-        embed = disnake.Embed(title="Anmälan", description="Anmälan registrerad!")
+        embed = disnake.Embed(title="FriskoLAN Anmälan", description="Anmälan registrerad!")
         for key, value in inter.text_values.items():
             embed.add_field(
                 name=key.capitalize(),
