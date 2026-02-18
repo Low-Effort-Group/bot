@@ -162,7 +162,7 @@ class MyModal(disnake.ui.Modal):
         await inter.response.send_message(embed=embed, ephemeral=True)
 
 
-@bot.slash_command(description="Anmäl dig till LAN!")
+@bot.slash_command(name="anmälan", description="Anmäl dig till LAN!")
 async def anmalan(inter: disnake.AppCmdInter):
     await inter.response.send_modal(modal=MyModal())
 
