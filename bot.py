@@ -121,11 +121,6 @@ async def subdomain(inter, domain: str):
 async def multiply(inter, factor: float, factor2: float):
     await inter.response.send_message(factor * factor2)
 
-@bot.slash_command(name="anmälan", description="Anmälan för LAN!")
-async def anmalan(inter, namn: str, klass: str, preferenser: str = "inga"):
-    print(f"Namn: {namn}, Klass: {klass}, preferenser: {preferenser}")
-    await inter.response.send_message("Uppfattat! Intresseanmälan registrerad.")
-
 class MyModal(disnake.ui.Modal):
     def __init__(self):
         # The details of the modal, and its components
@@ -141,32 +136,34 @@ class MyModal(disnake.ui.Modal):
                 label="Klass",
                 placeholder="Ex: 24NV",
                 custom_id="class",
+                max_length=5,
                 style=disnake.TextInputStyle.short,
             ),
             disnake.ui.TextInput(
                 label="Preferenser för platser",
                 placeholder="Ex: inga",
+                required=False,
                 custom_id="preferences",
                 style=disnake.TextInputStyle.paragraph,
+                max_length=128,
             ),
         ]
-        super().__init__(title="Create Tag", components=components)
+        super().__init__(title="Anmälan", components=components)
 
     # The callback received when the user input is completed.
     async def callback(self, inter: disnake.ModalInteraction):
-        embed = disnake.Embed(title="Tag Creation")
+        embed = disnake.Embed(title="Anmälan")
         for key, value in inter.text_values.items():
             embed.add_field(
                 name=key.capitalize(),
                 value=value[:1024],
                 inline=False,
             )
-        await inter.response.send_message(embed=embed)
+        await inter.response.send_message(embed=embed, ephemeral=True)
 
 
-@bot.slash_command()
-async def tags(inter: disnake.AppCmdInter):
-    """Sends a Modal to create a tag."""
+@bot.slash_command(description="Anmäl dig till LAN!")
+async def anmalan(inter: disnake.AppCmdInter):
     await inter.response.send_modal(modal=MyModal())
 
 @bot.slash_command(description="get the latency of the bot")
