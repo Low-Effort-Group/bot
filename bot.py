@@ -227,7 +227,7 @@ async def embed(ctx):
                       color=disnake.Colour.purple(),
                       timestamp=datetime.datetime.now())
 
-    embed.set_author(name="Alvar")
+    embed.set_author(name="FriskoLAN")
 
     await ctx.send(embed=embed)
 
