@@ -220,6 +220,23 @@ async def ping(ctx):
     latency = bot.latency * 1000
     await ctx.send(f"Pong! Latency: {latency:.2f}ms")
 
+@bot.slash_command(description="send an embed")
+async def embed(ctx):
+    embed = disnake.Embed(title="Lan anmälan",
+                      description="Kör /anmälan för att anmäla dig till lanet!\n\n@everyone",
+                      color=disnake.Colour.purple(),
+                      timestamp=datetime.datetime.now())
+
+    embed.set_author(name="Alvar")
+
+    await ctx.send(embed=embed)
+
+@bot.slash_command(description="get all registered users")
+async def registered_users(ctx):
+    async with aiosqlite.connect(DB_PATH) as db:
+        async with db.execute("SELECT user_id FROM anmalan") as cursor:
+            users = await cursor.fetchall()
+    await ctx.send(", ".join(str(user[0]) for user in users))
 
 @bot.slash_command(description="a test for embeds")
 @commands.default_member_permissions(manage_guild=True, moderate_members=True)
