@@ -123,7 +123,7 @@ async def multiply(inter, factor: float, factor2: float):
 
 @bot.slash_command(name="anmälan", description="Anmälan för LAN!")
 async def anmalan(inter, namn: str, klass: str, preferenser: str = "inga"):
-    print(f"Namn: {namn}, Klass: {klass}, preferenser: {preferenser}"
+    print(f"Namn: {namn}, Klass: {klass}, preferenser: {preferenser}")
     await inter.response.send_message("Uppfattat! Intresseanmälan registrerad."))
 
 @bot.slash_command(description="get the latency of the bot")
