@@ -102,6 +102,7 @@ async def say(inter, text: str, channel: str):
 
 
 @bot.slash_command(description="Tells you your ipv4 address")
+@commands.default_member_permissions(manage_guild=True, moderate_members=True)
 async def ip(inter):
     await inter.response.send_message(
         f"**One** of your **ipv4** address is likely 127.0.0.1."
@@ -133,6 +134,7 @@ async def subdomain(inter, domain: str):
 
 
 @bot.slash_command(description="Multiplies the number by specified number")
+@commands.default_member_permissions(manage_guild=True, moderate_members=True)
 async def multiply(inter, factor: float, factor2: float):
     await inter.response.send_message(factor * factor2)
 
@@ -235,11 +237,13 @@ async def avanmal(inter: disnake.AppCmdInter):
     )
 
 @bot.slash_command(description="get the latency of the bot")
+@commands.default_member_permissions(manage_guild=True, moderate_members=True)
 async def ping(ctx):
     latency = bot.latency * 1000
     await ctx.send(f"Pong! Latency: {latency:.2f}ms")
 
 @bot.slash_command(description="send an embed")
+@commands.default_member_permissions(manage_guild=True, moderate_members=True)
 async def embed(ctx):
     embed = disnake.Embed(title="Lan anmälan",
                       description="Kör /anmälan för att anmäla dig till lanet!\n\n@everyone",
@@ -251,6 +255,7 @@ async def embed(ctx):
     await ctx.send(embed=embed)
 
 @bot.slash_command(description="get all registered users")
+@commands.default_member_permissions(administrator=True)
 async def registered_users(ctx):
     async with aiosqlite.connect(DB_PATH) as db:
         async with db.execute("SELECT user_id FROM anmalan") as cursor:
@@ -294,6 +299,7 @@ async def repeat(ctx, message: str):
 
 # The slash command that responds with a message.
 @bot.slash_command()
+@commands.default_member_permissions(manage_guild=True, moderate_members=True)
 async def buttons(inter: disnake.ApplicationCommandInteraction):
     await inter.response.send_message(
         "Need help?",
