@@ -246,7 +246,7 @@ async def ping(ctx):
 @commands.default_member_permissions(manage_guild=True, moderate_members=True)
 async def embed(ctx):
     embed = disnake.Embed(title="Lan anmälan",
-                      description="Kör </anmälan:1473734888497741836> för att anmäla dig till lanet!\n\n@everyone",
+                      description="Kör /anmälan för att anmäla dig till lanet!\n\n@everyone",
                       color=disnake.Colour.purple(),
                       timestamp=datetime.datetime.now())
 
