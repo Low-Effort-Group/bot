@@ -205,33 +205,24 @@ class MyModal(disnake.ui.Modal):
 
 @bot.slash_command(name="anmälan", description="Anmäl dig till LAN!")
 async def anmalan(inter: disnake.AppCmdInter):
-    async with aiosqlite.connect(DB_PATH) as db:
-        async with db.execute(
-            "SELECT 1 FROM anmalan WHERE user_id = ?", (inter.author.id,)
-        ) as cursor:
-            if await cursor.fetchone():
-                await inter.response.send_message(
-                    "Du är redan anmäld! Kontakta en admin om du vill ändra din anmälan.",
-                    ephemeral=True,
-                )
-                return
+    # Open the modal immediately; the modal callback handles duplicate checks
     await inter.response.send_modal(modal=MyModal())
 
 
 @bot.slash_command(name="avanmäl", description="Ta bort din LAN-anmälan.")
 async def avanmal(inter: disnake.AppCmdInter):
+    # Defer early to avoid InteractionTimedOut on slower DB operations
+    await inter.response.defer(ephemeral=True)
     async with aiosqlite.connect(DB_PATH) as db:
         async with db.execute(
             "SELECT 1 FROM anmalan WHERE user_id = ?", (inter.author.id,)
         ) as cursor:
             if not await cursor.fetchone():
-                await inter.response.send_message(
-                    "Du är inte anmäld.", ephemeral=True
-                )
+                await inter.followup.send("Du är inte anmäld.", ephemeral=True)
                 return
         await db.execute("DELETE FROM anmalan WHERE user_id = ?", (inter.author.id,))
         await db.commit()
-    await inter.response.send_message(
+    await inter.followup.send(
         "Din anmälan har tagits bort. Du kan anmäla dig igen med `/anmälan`.",
         ephemeral=True,
     )
