@@ -154,7 +154,11 @@
         <h1>FriskoLAN</h1>
         <p>Anmälningslista</p>
         <span class="badge">{{ rows|length }} anmälda</span>
-        <div style="position: absolute; top: 1.5rem; right: 1.5rem;">
+        <div style="position: absolute; top: 1.5rem; right: 1.5rem; display:flex; gap:0.5rem;">
+            <a href="{{ url_for('add_entry') }}"
+                style="color: #e2e8f0; text-decoration: none; font-size: 0.85rem; padding: 0.5rem 1rem; background: #1f2937; border: 1px solid #1e2235; border-radius: 6px; transition: all 0.15s ease;"
+                onmouseover="this.style.borderColor='#a78bfa';"
+                onmouseout="this.style.borderColor='#1e2235';">Add entry</a>
             <a href="{{ url_for('logout') }}"
                 style="color: #64748b; text-decoration: none; font-size: 0.85rem; padding: 0.5rem 1rem; border: 1px solid #1e2235; border-radius: 6px; transition: all 0.15s ease;"
                 onmouseover="this.style.color='#e2e8f0'; this.style.borderColor='#a78bfa';"

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="sv">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FriskoLAN – Lägg till anmälan</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #0d0f1a; color: #e2e8f0; min-height: 100vh; display:flex; align-items:center; justify-content:center; padding:2rem }
+        .card { width:100%; max-width:560px; background:#141624; border:1px solid #1e2235; border-radius:12px; padding:1.5rem }
+        label{ display:block; margin-bottom:0.4rem; color:#94a3b8; font-size:0.85rem }
+        input, textarea{ width:100%; padding:0.65rem 0.9rem; background:#0d0f1a; border:1px solid #1e2235; border-radius:8px; color:#e2e8f0; margin-bottom:1rem }
+        .row { display:flex; gap:0.75rem }
+        .row > * { flex:1 }
+        .actions{ display:flex; gap:0.5rem }
+        button{ padding:0.7rem 1rem; border-radius:8px; border:none; cursor:pointer }
+        .btn-primary{ background:linear-gradient(135deg,#a78bfa,#60a5fa); color:white }
+        .btn-ghost{ background:transparent; border:1px solid #1e2235; color:#94a3b8 }
+        .error{ background: rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.12); color:#fca5a5; padding:0.75rem; border-radius:8px; margin-bottom:1rem }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h2 style="margin-bottom:0.25rem">Lägg till anmälan</h2>
+        <p style="color:#64748b; margin-bottom:1rem">Fyll i uppgifterna och klicka Spara.</p>
+
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST">
+            <label for="namn">Namn</label>
+            <input id="namn" name="namn" required />
+
+            <label for="username">Discord (username#1234)</label>
+            <input id="username" name="username" required />
+
+            <div class="row">
+                <div>
+                    <label for="klass">Klass</label>
+                    <input id="klass" name="klass" />
+                </div>
+                <div>
+                    <label for="preferenser">Önskemål</label>
+                    <input id="preferenser" name="preferenser" />
+                </div>
+            </div>
+
+            <div class="actions">
+                <a href="{{ url_for('index') }}" class="btn-ghost" style="display:inline-flex;align-items:center;justify-content:center">Avbryt</a>
+                <button type="submit" class="btn-primary">Spara</button>
+            </div>
+        </form>
+    </div>
+</body>
+
+</html>

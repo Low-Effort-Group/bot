@@ -49,19 +49,19 @@ async def on_ready():
     print("Database ready.")
 
 
-@bot.event
-async def on_message(message):
-    if message.author == bot.user:
-        return
+# @bot.event
+# async def on_message(message):
+#     if message.author == bot.user:
+#         return
 
-    if "shit" in message.content.lower():
-        await message.delete()
-        await message.channel.send(f"{message.author.mention} - don't use that word!")
-    if "sybau" in message.content.lower():
-        await message.delete()
-        await message.channel.send(f"{message.author.mention} - dont say that or ban -god")
+#     if "shit" in message.content.lower():
+#         await message.delete()
+#         await message.channel.send(f"{message.author.mention} - don't use that word!")
+#     if "sybau" in message.content.lower():
+#         await message.delete()
+#         await message.channel.send(f"{message.author.mention} - dont say that or ban -god")
 
-    await bot.process_commands(message)
+#     await bot.process_commands(message)
 
 
 @bot.slash_command(description="Server lockdown")

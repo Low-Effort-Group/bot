@@ -63,5 +63,33 @@ def index():
     return render_template("index.html", rows=rows)
 
 
+@app.route("/add", methods=["GET", "POST"])
+@login_required
+def add_entry():
+    """Admin: add a registration entry manually"""
+    error = None
+    if request.method == 'POST':
+        namn = request.form.get('namn')
+        username = request.form.get('username')
+        klass = request.form.get('klass')
+        preferenser = request.form.get('preferenser')
+
+        if not namn or not username:
+            error = "Namn och Discord-användarnamn krävs."
+        else:
+            conn = sqlite3.connect(DB_PATH)
+            try:
+                conn.execute(
+                    "INSERT INTO anmalan (namn, username, klass, preferenser) VALUES (?, ?, ?, ?)",
+                    (namn, username, klass, preferenser),
+                )
+                conn.commit()
+            finally:
+                conn.close()
+            return redirect(url_for('index'))
+
+    return render_template('add_entry.html', error=error)
+
+
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
