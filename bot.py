@@ -48,6 +48,19 @@ async def on_ready():
         await db.commit()
     print("Database ready.")
 
+    # ensure the registered/unregistered roles exist in every guild we are in
+    async def ensure_roles(guild: disnake.Guild):
+        for name in ("Registered", "Unregistered"):
+            if not disnake.utils.get(guild.roles, name=name):
+                try:
+                    await guild.create_role(name=name)
+                    print(f"Created role '{name}' in {guild.name}")
+                except Exception as e:
+                    print(f"Failed to create role '{name}' in {guild.name}: {e}")
+
+    for g in bot.guilds:
+        await ensure_roles(g)
+
 
 # @bot.event
 # async def on_message(message):
@@ -138,6 +151,43 @@ async def subdomain(inter, domain: str):
 async def multiply(inter, factor: float, factor2: float):
     await inter.response.send_message(factor * factor2)
 
+
+
+async def update_registration_role(member: disnake.Member, registered: bool):
+    """Add or remove the two special roles based on registration status.
+
+    - ``Registered`` is given when ``registered`` is True.
+    - ``Unregistered`` is given when ``registered`` is False.
+
+    Roles are looked up by name; if they don't exist nothing is done.
+    """
+    guild = member.guild
+    reg_role = disnake.utils.get(guild.roles, name="Registered")
+    unreg_role = disnake.utils.get(guild.roles, name="Unregistered")
+
+    if registered:
+        if reg_role and reg_role not in member.roles:
+            await member.add_roles(reg_role)
+        if unreg_role and unreg_role in member.roles:
+            await member.remove_roles(unreg_role)
+    else:
+        if unreg_role and unreg_role not in member.roles:
+            await member.add_roles(unreg_role)
+        if reg_role and reg_role in member.roles:
+            await member.remove_roles(reg_role)
+
+
+@bot.event
+async def on_member_join(member: disnake.Member):
+    """When a member joins, give them the correct role based on the DB."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        async with db.execute(
+            "SELECT 1 FROM anmalan WHERE user_id = ?", (member.id,)
+        ) as cursor:
+            registered = bool(await cursor.fetchone())
+    await update_registration_role(member, registered)
+
+
 class MyModal(disnake.ui.Modal):
     def __init__(self):
         # The details of the modal, and its components
@@ -190,6 +240,8 @@ class MyModal(disnake.ui.Modal):
                 (inter.author.id, str(inter.author), namn, klass, preferenser),
             )
             await db.commit()
+        # update the discord roles to reflect that the user is now registered
+        await update_registration_role(inter.author, True)
 
         embed = disnake.Embed(
             title="FriskoLAN Anmälan",
@@ -222,6 +274,8 @@ async def avanmal(inter: disnake.AppCmdInter):
                 return
         await db.execute("DELETE FROM anmalan WHERE user_id = ?", (inter.author.id,))
         await db.commit()
+    # roles should reflect that the user is no longer registered
+    await update_registration_role(inter.author, False)
     await inter.followup.send(
         "Din anmälan har tagits bort. Du kan anmäla dig igen med `/anmälan`.",
         ephemeral=True,
@@ -232,6 +286,25 @@ async def avanmal(inter: disnake.AppCmdInter):
 async def ping(ctx):
     latency = bot.latency * 1000
     await ctx.send(f"Pong! Latency: {latency:.2f}ms")
+
+
+@bot.slash_command(description="Change a user's nickname")
+@commands.default_member_permissions(manage_nicknames=True)
+async def nick(inter, user: disnake.Member, nickname: str):
+    """Change the nickname of a member.
+
+    Requires the caller to have the Manage Nicknames permission.
+    """
+    try:
+        await user.edit(nick=nickname)
+        await inter.response.send_message(
+            f"Nickname for {user.mention} updated to **{nickname}**.",
+            ephemeral=True,
+        )
+    except Exception as e:
+        await inter.response.send_message(
+            f"Failed to change nickname: {e}", ephemeral=True
+        )
 
 @bot.slash_command(description="send an embed")
 @commands.default_member_permissions(manage_guild=True, moderate_members=True)
