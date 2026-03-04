@@ -8,6 +8,7 @@ import os
 import random
 import subprocess
 import aiosqlite
+import asyncio
 from admins import check_perm
 import whois as wi
 from gtts import gTTS
@@ -49,17 +50,31 @@ async def on_ready():
     print("Database ready.")
 
     # ensure the registered/unregistered roles exist in every guild we are in
-    async def ensure_roles(guild: disnake.Guild):
-        for name in ("Registered", "Unregistered"):
-            if not disnake.utils.get(guild.roles, name=name):
-                try:
-                    await guild.create_role(name=name)
-                    print(f"Created role '{name}' in {guild.name}")
-                except Exception as e:
-                    print(f"Failed to create role '{name}' in {guild.name}: {e}")
-
     for g in bot.guilds:
-        await ensure_roles(g)
+        reg, unreg, coros = ensure_roles(g)
+        if coros:
+            await asyncio.gather(*coros)
+
+
+
+def ensure_roles(guild: disnake.Guild):
+    """Return a tuple of (registered_role, unregistered_role).
+
+    Creates any missing roles with the correct names.  This helper is
+    synchronous because the only asynchronous piece is creation; callers
+    can `await` the returned coroutine if needed.  If a role already exists
+    it is returned unchanged.
+    """
+    reg = disnake.utils.get(guild.roles, name="Registered")
+    unreg = disnake.utils.get(guild.roles, name="Unregistered")
+    # the creation calls are async so we return both roles and a list of
+    # coroutines the caller should await
+    to_create: list = []
+    if not reg:
+        to_create.append(guild.create_role(name="Registered"))
+    if not unreg:
+        to_create.append(guild.create_role(name="Unregistered"))
+    return reg, unreg, to_create
 
 
 # @bot.event
@@ -305,6 +320,43 @@ async def nick(inter, user: disnake.Member, nickname: str):
         await inter.response.send_message(
             f"Failed to change nickname: {e}", ephemeral=True
         )
+
+
+@bot.slash_command(description="Sync registration roles for all server members")
+@commands.default_member_permissions(administrator=True)
+async def sync_roles(inter: disnake.AppCmdInter):
+    """Iterate through every member in the guild and adjust their
+    Registered/Unregistered roles based on the database.
+    """
+    await inter.response.defer(ephemeral=True)
+    guild = inter.guild
+
+    # make sure the roles exist before we start modifying members
+    reg, unreg, coros = ensure_roles(guild)
+    if coros:
+        created = await asyncio.gather(*coros)
+        # fill in any missing references
+        idx = 0
+        if reg is None and idx < len(created):
+            reg = created[idx]
+            idx += 1
+        if unreg is None and idx < len(created):
+            unreg = created[idx]
+
+    # fetch all registered ids once
+    async with aiosqlite.connect(DB_PATH) as db:
+        async with db.execute("SELECT user_id FROM anmalan") as cursor:
+            registered_ids = {row[0] for row in await cursor.fetchall()}
+
+    count = 0
+    for member in guild.members:
+        registered = member.id in registered_ids
+        await update_registration_role(member, registered)
+        count += 1
+
+    await inter.followup.send(
+        f"Updated roles for {count} members.", ephemeral=True
+    )
 
 @bot.slash_command(description="send an embed")
 @commands.default_member_permissions(manage_guild=True, moderate_members=True)
