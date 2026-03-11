@@ -11,6 +11,28 @@ app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-producti
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "..", "anmalan.db")
 
+def init_db():
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS anmalan (
+                user_id    INTEGER PRIMARY KEY,
+                username   TEXT NOT NULL,
+                namn       TEXT NOT NULL,
+                klass      TEXT NOT NULL,
+                preferenser TEXT
+            )
+        """)
+        try:
+            conn.execute("ALTER TABLE anmalan ADD COLUMN placed BOOLEAN DEFAULT FALSE")
+        except sqlite3.OperationalError:
+            pass
+        conn.commit()
+    finally:
+        conn.close()
+
+init_db()
+
 # Admin credentials from environment variables
 ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'admin')
 ADMIN_PASSWORD_HASH = os.environ.get('ADMIN_PASSWORD_HASH', generate_password_hash('admin'))
@@ -57,10 +79,35 @@ def index():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     rows = conn.execute(
-        "SELECT namn, username, klass, preferenser FROM anmalan ORDER BY namn COLLATE NOCASE"
+        "SELECT user_id, namn, username, klass, preferenser, placed FROM anmalan ORDER BY namn COLLATE NOCASE"
     ).fetchall()
     conn.close()
     return render_template("index.html", rows=rows)
+
+
+@app.route("/toggle_placed/<int:user_id>", methods=["POST"])
+@login_required
+def toggle_placed(user_id):
+    placed = request.form.get('placed') == 'true'
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.execute("UPDATE anmalan SET placed = ? WHERE user_id = ?", (placed, user_id))
+        conn.commit()
+    finally:
+        conn.close()
+    return redirect(url_for('index'))
+
+
+@app.route("/remove/<int:user_id>", methods=["POST"])
+@login_required
+def remove_entry(user_id):
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.execute("DELETE FROM anmalan WHERE user_id = ?", (user_id,))
+        conn.commit()
+    finally:
+        conn.close()
+    return redirect(url_for('index'))
 
 
 @app.route("/add", methods=["GET", "POST"])

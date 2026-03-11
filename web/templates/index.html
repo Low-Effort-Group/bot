@@ -126,6 +126,14 @@
             font-family: monospace;
         }
 
+        td.placed {
+            text-align: center;
+        }
+
+        td.action {
+            text-align: center;
+        }
+
         .empty {
             text-align: center;
             padding: 3rem;
@@ -175,6 +183,8 @@
                     <th>Discord</th>
                     <th>Klass</th>
                     <th>Önskemål</th>
+                    <th>Placerad</th>
+                    <th>Åtgärd</th>
                 </tr>
             </thead>
             <tbody>
@@ -186,11 +196,22 @@
                     <td class="discord">{{ row.username }}</td>
                     <td class="klass">{{ row.klass }}</td>
                     <td class="pref">{{ row.preferenser or '—' }}</td>
+                    <td class="placed">
+                        <form action="{{ url_for('toggle_placed', user_id=row.user_id) }}" method="POST" style="margin: 0;">
+                            <input type="hidden" name="placed" value="{{ 'false' if row.placed else 'true' }}">
+                            <input type="checkbox" onchange="this.form.submit()" {% if row.placed %}checked{% endif %}>
+                        </form>
+                    </td>
+                    <td class="action">
+                        <form action="{{ url_for('remove_entry', user_id=row.user_id) }}" method="POST" style="margin: 0;" onsubmit="return confirm('Är du säker på att du vill ta bort den här anmälan?');">
+                            <button type="submit" style="background: #ef4444; color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.8rem; transition: background 0.15s; outline: none;" onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'">Ta bort</button>
+                        </form>
+                    </td>
                 </tr>
                 {% endfor %}
                 {% else %}
                 <tr>
-                    <td colspan="5" class="empty">Inga anmälningar ännu.</td>
+                    <td colspan="7" class="empty">Inga anmälningar ännu.</td>
                 </tr>
                 {% endif %}
             </tbody>
